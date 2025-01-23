@@ -1,0 +1,10 @@
+[package]
+name = "deepestworld_rust_agent"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv = "0.15.0"
+reqwest = "0.12.12"
+tokio = { version = "1.43.0", features = ["net", "macros", "rt", "rt-multi-thread"] }
+tungstenite = { version = "0.26.1", features = ["native-tls"] }
