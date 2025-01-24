@@ -1,5 +1,7 @@
-use crate::VALUE_KEYWORD_LEN;
+const VALUE_KEYWORD_LEN: usize = 7;
 
+/// Parses an html document to find a csrf token of a form.
+/// It returns Some(token) or None if it can't find any.
 pub fn parse_csrf_token(body: &str) -> Option<&str> {
     // find the index of the string _csrf_token
     let start_index = body.find("_csrf_token"); 

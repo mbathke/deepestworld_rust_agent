@@ -7,8 +7,6 @@ use std::env;
 use tungstenite::{connect, Message};
 use utils::parse_csrf_token;
 
-const VALUE_KEYWORD_LEN: usize = 7;
-
 #[derive(Serialize, Deserialize, Debug)]
 struct WsToken {
     token: String,
