@@ -12,6 +12,9 @@ struct WsToken {
     token: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct AuthMessage(String, WsToken);
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
@@ -77,7 +80,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("* {header}");
     }
 
-    for _i in 0..50 {
+    println!("Say hello");
+
+    // create the auth message with serde
+    let auth_message = serde_json::to_string(&AuthMessage("auth".to_string(), ws_token)).unwrap();
+    println!("Auth Message {:?}", auth_message);
+
+    socket.send(Message::Text(auth_message.into())).unwrap();
+
+    for _i in 0..1 { 
         let msg = socket.read().expect("Error reading message.");
         println!("Received: {}", msg);
     }
