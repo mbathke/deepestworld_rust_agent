@@ -13,6 +13,7 @@ CHARACTER=<your_character_name>
 LOGIN_URL=https://deepestworld.com/login
 GAME_URL=https://deepestworld.com/game
 WS_URL=wss://ca1.deepestworld.com/
+WS_AUTH_TOKEN_URL=https://deepestworld.com/ws-auth-token
 ```
 
 Install all modules and/or run the program with cargo.

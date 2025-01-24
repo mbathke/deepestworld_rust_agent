@@ -1,67 +1,90 @@
+mod utils;
+
 use dotenv::dotenv;
 use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use std::env;
-// use tungstenite::{connect, Message};
+use tungstenite::{connect, Message};
+use utils::parse_csrf_token;
 
-/// Parses a string slice for a keyword and returns a new slice when a semicolon 
-/// is found like its typically formatted in a Cookie.
-fn parse_cookie<'a>(keyword: &str, string_slice: &'a str) -> Option<&'a str> {
-    let start_index = string_slice.find(keyword);
+const VALUE_KEYWORD_LEN: usize = 7;
 
-    match start_index {
-        Some(start) => {
-            let end_index = string_slice[start..].find(';');
-            match end_index {
-                Some(end) => Some(&string_slice[start..end]),
-                None => None
-            }
-        },
-        None => return None
-    }
+#[derive(Serialize, Deserialize, Debug)]
+struct WsToken {
+    token: String,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
+
     // load .env config
     dotenv().ok();
 
     let login_url = env::var("LOGIN_URL").expect("LOGIN_URL not found.");
-    // let game_url = env::var("GAME_URL").expect("GAME_URL not found.");
-    // let ws_url = env::var("WS_URL").expect("WS_URL not found.");
+    let game_url = env::var("GAME_URL").expect("GAME_URL not found.");
+    let ws_url = env::var("WS_URL").expect("WS_URL not found.");
+    let ws_token_url = env::var("WS_AUTH_TOKEN_URL").expect("WS_AUTH_TOKEN_URL not found.");
     let username = env::var("USERNAME").expect("USERNAME not found.");
     let password = env::var("PASSWORD").expect("PASSWORD not found.");
     // let character = env::var("CHARACTER").expect("CHARACTER not found.");
 
-    let client = Client::new();
+    let client = Client::builder()
+        .cookie_store(true)
+        .build()?;
+
+    // first, call the login root to get a valid csrf token and initial session ID
     let response = client.get(&login_url).send().await?;
+    // let response_headers = response.headers().clone();
 
     if response.status() != 200 {
         println!("Invalid Response");
         return Ok(());
     }
 
-    // let response_body = response.text().await?;
-    // let csrf_token = parse_csrf_token(&response_body);
+    // get the csrf token
+    let response_body = response.text().await?;
+    let csrf_token = parse_csrf_token(&response_body).expect("Couldn't parse csrf_token");
+    // println!("csrf token: {}", csrf_token);
+
+    // request the login page to get a valid session
     let params = [
         ("_username", username),
         ("_password", password),
-        // ("_target_path", "/default-login-redirect?return=0"),
-        // ("_csrf_token", csrf_token),
+        ("_target_path", "/default-login-redirect?return=0".to_string()),
+        ("_csrf_token", csrf_token.to_string()),
     ];
-    let login_response = client.post(login_url).form(&params).send().await?;
+    let _login_response = client
+        .post(&login_url)
+        .form(&params)
+        .send().await?;
 
-    let cookie = login_response
-        .headers()
-        .get("set-cookie")
-        .expect("Could not get login session cookie.")
-        .to_str()
-        .unwrap();
+    // first request the ws_auth_token here
+    let ws_token_response = client.get(ws_token_url)
+        .header("Referer", game_url)
+        .send().await?;
+    let ws_token_string = ws_token_response.text().await?;
+    let ws_token: WsToken =
+        serde_json::from_str(&ws_token_string).expect("Could not get Websocket token.");
 
-    let cookie_value = parse_cookie("PHPSESSID", &cookie).unwrap();
+    println!("ws_token {:?}", ws_token);
 
-    println!("Login cookie: {}", cookie_value);
+    let (mut socket, ws_response) = connect(ws_url).expect("Can't connect to websocket.");
 
-    // TODO: connect with the websocket
+    // first send the auth token, then we will get an auth object
+
+    println!("Connected to the websocket");
+    println!("Response HTTP code: {}", ws_response.status());
+    for (header, _value) in ws_response.headers() {
+        println!("* {header}");
+    }
+
+    for _i in 0..50 {
+        let msg = socket.read().expect("Error reading message.");
+        println!("Received: {}", msg);
+    }
+
+    let _ = socket.close(None);
 
     Ok(())
 }
