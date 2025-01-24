@@ -61,5 +61,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Login cookie: {}", cookie_value);
 
+    // TODO: connect with the websocket
+
     Ok(())
 }
