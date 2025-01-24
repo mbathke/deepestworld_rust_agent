@@ -1,5 +1,7 @@
 # Deepestworld Rust Agent
 
+This is a work in progress.
+
 ## Installation
 
 First create a `.env` file in your root directory and enter the following content:
@@ -19,3 +21,13 @@ Install all modules and/or run the program with cargo.
 $ cargo build
 $ cargo run
 ```
+
+## Status and ToDo's
+
+Currently it logs the user in and returns the new session cookie.
+
+### ToDo's 
+
+* create a websocket connection with tungstenite
+* build the api locally
+* display the information in some useful way with bevy game engine
