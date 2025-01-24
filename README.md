@@ -25,7 +25,7 @@ $ cargo run
 
 ## Status and ToDo's
 
-Currently it logs the user in and returns the new session cookie.
+It logs into the deepestworld game and requests the character information via the websocket.
 
 ### ToDo's 
 
