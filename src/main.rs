@@ -60,6 +60,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .form(&params)
         .send().await?;
 
+    println!("Login response status: {}", _login_response.status());
+
     // first request the ws_auth_token here
     let ws_token_response = client.get(ws_token_url)
         .header("Referer", game_url)
