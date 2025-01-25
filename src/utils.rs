@@ -40,7 +40,7 @@ pub fn parse_csrf_token(body: &str) -> Option<&str> {
 /// is found like its typically formatted in a Cookie.
 ///
 /// @deprecated
-pub fn parse_cookie<'a>(keyword: &str, string_slice: &'a str) -> Option<&'a str> {
+pub fn _parse_cookie<'a>(keyword: &str, string_slice: &'a str) -> Option<&'a str> {
     let start_index = string_slice.find(keyword);
 
     match start_index {
@@ -54,5 +54,3 @@ pub fn parse_cookie<'a>(keyword: &str, string_slice: &'a str) -> Option<&'a str>
         None => return None,
     }
 }
-
-
