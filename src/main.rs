@@ -1,4 +1,5 @@
 mod utils;
+mod player;
 
 use dotenv::dotenv;
 use reqwest::Client;
@@ -6,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tungstenite::{connect, Message};
 use utils::parse_csrf_token;
+use player::Player;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct WsToken {
@@ -14,6 +16,9 @@ struct WsToken {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct AuthMessage(String, WsToken);
+
+#[derive(Serialize, Deserialize, Debug)]
+struct AuthResponse(String, Player);
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -93,6 +98,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for _i in 0..1 { 
         let msg = socket.read().expect("Error reading message.");
         println!("Received: {}", msg);
+
+        // TODO: find out how to deserialize the message
+        let player = serde_json::from_str::<AuthResponse>(&msg.to_string());
+        println!("Player: {:?}", player);
     }
 
     let _ = socket.close(None);
