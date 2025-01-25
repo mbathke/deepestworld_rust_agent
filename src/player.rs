@@ -10,7 +10,9 @@ pub struct Player {
     mtx: Appearance,
     gear: Gear,
     mogs: Mogs,
+    #[serde(rename = "isCodeActive")]
     is_code_active: i32,
+    #[serde(rename = "subStatus")]
     sub_status: i32,
     name: String,
 }
@@ -24,16 +26,16 @@ pub struct Appearance {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Gear {
-    belt: Item, 
-    boots: Item,
-    chest: Item,
-    ring1: Item,
-    ring2: Item,
-    amulet: Item,
-    gloves: Item,
-    helmet: Item,
-    shield: Item,
-    main_hand: Item,
+    belt: Option<Item>, 
+    boots: Option<Item>,
+    chest: Option<Item>,
+    ring1: Option<Item>,
+    ring2: Option<Item>,
+    amulet: Option<Item>,
+    gloves: Option<Item>,
+    helmet: Option<Item>,
+    shield: Option<Item>,
+    main_hand: Option<Item>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -42,10 +44,12 @@ pub struct Item {
     md: i32,
     ele: i32,
     lvl: i32,
-    mods: String,
+    mods: std::collections::HashMap<String, i32>,
     qual: i32,
-    tpe: i32,
-    mat_type: i32,
+    #[serde(rename = "type")]
+    kind: i32,
+    #[serde(rename = "matType")]
+    mat_type: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

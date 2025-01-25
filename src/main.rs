@@ -101,7 +101,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         // TODO: find out how to deserialize the message
         let player = serde_json::from_str::<AuthResponse>(&msg.to_string());
-        println!("Player: {:?}", player);
+        println!("Player: {:#?}", player);
     }
 
     let _ = socket.close(None);
